@@ -27,11 +27,24 @@ def with_cursor(func):
     return wrapper
 
 
+person = {
+    "is_logged_in": False, "id": "", "admin": False
+}
+
+
+def logout():
+    global person
+
+    person = {
+        "is_logged_in": False, "id": "", "admin": False
+    }
+
+
 # login signup
 @with_cursor
 def register(conn, cursor, email, password):
 
-    cursor.execute("SELECT * FROM customer WHERE email = ?", (email,))
+    cursor.execute("SELECT * FROM customers WHERE email = ?", (email,))
     
     already = cursor.fetchall()
     if len(already) != 0:
@@ -39,7 +52,7 @@ def register(conn, cursor, email, password):
     
     password = hash_input(password)
 
-    cursor.execute("INSERT INTO customer (email, password_hashed) VALUES (?, ?)", (email, password,))
+    cursor.execute("INSERT INTO customers (email, password_hashed) VALUES (?, ?)", (email, password,))
     conn.commit()
 
     return {"status": "good", "msg": "Registered!"}
@@ -48,7 +61,7 @@ def register(conn, cursor, email, password):
 @with_cursor
 def login(conn, cursor, email, password):
 
-    cursor.execute("SELECT * FROM customer WHERE email = ?", (email,))
+    cursor.execute("SELECT * FROM customers WHERE email = ?", (email,))
     
     already = cursor.fetchall()
     if len(already) == 0:
@@ -58,6 +71,11 @@ def login(conn, cursor, email, password):
 
     if already[0][-1] != password:
         return {"status": "bad", "msg": "incorrect password"}
+    
+    global person
+
+    person["is_logged_in"] = True
+    person["id"] = already[0][0]
 
     return {"status": "good", "msg": "loggedin", "id":already[0][0]}
 
@@ -91,30 +109,135 @@ def admin_login(conn, cursor, username, password):
 
     if already[0][-1] != password:
         return {"status": "bad", "msg": "incorrect password"}
+    
+    global person
+    
+    person["is_logged_in"] = True
+    person["id"] = already[0][0]
+    person["admin"] = True
 
     return {"status": "good", "msg": "loggedin", "id":already[0][0]}
 
 
-# add flight company
+
+# add remove flight flights
 @with_cursor
-def list_company(conn, cursor):
+def add_flight(conn, cursor, flight_name, departure_date, departure_time, duration, origin, destination, price, seats_available):
 
-    cursor.execute("SELECT * FROM flight_company")
-    return [flight[1] for flight in cursor.fetchall()]
-
-
-@with_cursor
-def add_company(conn, cursor, company_name):
-
-    cursor.execute("SELECT * FROM flight_company WHERE name = ?", (company_name, ))
+    if not person["admin"]:
+        return {"status": "bad", "msg": "admin account needed"}
     
-    if len(cursor.fetchall()) != 0:
-        return {"status": "bad", "msg": f"{company_name} already added"}
+    try:
+        cursor.execute(
+            'INSERT INTO flights (flight_name, departure_date, departure_time, origin, destination, price, seats_available, duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            (flight_name, departure_date, departure_time, origin, destination, price, seats_available, duration)
+        )
 
-    cursor.execute("INSERT INTO flight_company (name) VALUES (?)", (company_name, ))
+        conn.commit()
+
+        return {"status": "good", "msg": "Added"}
+    
+    except Exception as e:
+        return {"status": "bad", "msg": f"error: {e}"}
+
+
+@with_cursor
+def remove_flight(conn, cursor, flight_id):
+
+    if not person["admin"]:
+        return {"status": "bad", "msg": "admin account needed"}
+
+    cursor.execute('DELETE FROM flights WHERE id = ?', (flight_id,))
+    cursor.execute('DELETE FROM bookings WHERE flight_id = ?', (flight_id,))
+
     conn.commit()
 
-    return {"status": "good", "msg": f"{company_name} added"}
+    return {"status": "good", "msg": "Removed"}
+    
+
+@with_cursor
+def bookflight(conn, cursor, flight_id, number_of_tickets):
+
+    if not person["is_logged_in"]:
+        return {"status": "bad", "msg": "login first"}
+    
+    if person["admin"]:
+        return {"status": "bad", "msg": "only customers can do this operation"}
+    
+    customer_id = person["id"]
+
+    cursor.execute("SELECT seats_available FROM flights WHERE id = ?", (flight_id,))
+    
+    available = cursor.fetchall()
+
+    if len(available) == 0:
+        return {"status": "bad", "msg": "Flight not found"}
+    
+    available = available[0][0]
+    
+    if available < number_of_tickets:
+        return {"status": "bad", "msg": f"Only {available} seats free"}
+
+    try:
+        cursor.execute(
+            'INSERT INTO bookings (customer_id, flight_id, number_of_tickets, status) VALUES (?, ?, ?, ?)',
+            (customer_id, flight_id, number_of_tickets, "Pending")
+        )
+
+        conn.commit()
+
+        return {"status": "good", "msg": "Booked check you orders"}
+    
+    except Exception as e:
+        return {"status": "bad", "msg": f"error: {e}"}
+    
+
+@with_cursor
+def cancel_booking(conn, cursor, booking_id):
+
+    if not person["is_logged_in"]:
+        return {"status": "bad", "msg": "login first"}
+    
+    if person["admin"]:
+        return {"status": "bad", "msg": "only customers can do this operation"}
+    
+    customer_id = person["id"]
+
+    cursor.execute("SELECT flight_id, number_of_tickets, status FROM bookings WHERE id = ? AND customer_id = ?", (booking_id, customer_id,))
+    
+    response = cursor.fetchall()
+
+    if len(response) == 0:
+        return {"status": "bad", "msg": "Invalid booking id"}
+    
+    flight_id, seat, booking = response[0][0], response[0][1], response[0][2]
+    
+    if booking == "Canceled":
+        return {"status": "bad", "msg": "Already canceled"}
+    
+    ## cancel and change the availble seats
+    cursor.execute('UPDATE bookings SET status = ? WHERE id = ?', ('Canceled', booking_id))
+
+    cursor.execute("UPDATE flights SET seats_available = seats_available + ? WHERE id = ?", (seat, flight_id))
+    
+    conn.commit()
+    
+    return {"status": "good", "msg": "Ticket Canceled"}
 
 
-# add flights
+# my ticket
+@with_cursor
+def my_ticket(conn, cursor):
+
+    if not person["is_logged_in"]:
+        return {"status": "bad", "msg": "login first"}
+    
+    if person["admin"]:
+        return {"status": "bad", "msg": "only customers can do this operation"}
+    
+    customer_id = person["id"]
+
+    cursor.execute('SELECT * FROM bookings WHERE customer_id = ?', (customer_id,))
+    bookings = cursor.fetchall()
+
+    return bookings

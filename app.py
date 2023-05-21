@@ -4,7 +4,7 @@ from sql_cmds import *
 app = Flask(__name__)
 
 person = {
-    "is_logged_in": False, "email": "", "uid": "", "admin": False
+    "is_logged_in": False, "email": "", "id": "", "admin": False
 }
 
 

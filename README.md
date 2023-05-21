@@ -2,6 +2,7 @@
 Round 2 flight booking application
 
 
+## Database schema
 ```sqlite
 
 CREATE TABLE IF NOT EXISTS "customers" (
