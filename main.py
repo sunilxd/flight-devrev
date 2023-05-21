@@ -20,6 +20,7 @@ def with_cursor(func):
 
         response = func(conn, cursor, *args, **kwargs)
 
+        conn.commit()
         cursor.close()
         conn.close()
 
@@ -318,3 +319,5 @@ while True:
     except Exception as e:
         
         print(e)
+
+    print()
