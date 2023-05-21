@@ -1,6 +1,89 @@
 # flight-devrev
 Round 2 flight booking application
 
+## SQL tables
+```
+admin
+customers
+flights
+bookings
+```
+
+## setup
+```
+git clone https://github.com/sunilxd/flight-devrev.git
+pip install sqlite3
+pip install tabulate
+```
+
+## To run
+```
+cd flight-devrev
+python main.py
+```
+
+## Commands
+### general
+- `show` - print the table
+- `flights` - search flight with given date and time
+- `logout` - logout the user
+
+### admin
+- `admin_login` - login as admin
+- `admin_register` - register admin account
+- `add` - add flight
+- `remove` - remove flight
+- `tickets` - return booked tickets given `flight_id`
+
+### customer
+- `login` - login as customer
+- `register` - register a account
+- `book` - book a flight
+- `cancel` - cancel a booked ticket
+- `myorder` - return all the ticket booked by the user
+
+## Syntax
+```
+show table_name
+show flights
+
+logout
+logout
+
+admin_register username password
+admin_register admin admin
+
+register email password
+register sunil@gmail.com sunil
+
+admin_login username password
+admin_login admin admin
+
+login username password
+login sunil@gmail.com sunil
+
+add flight_name departure_date departure_time duration origin destination price seats_available
+add Unite_Airlines 2023-05-22 10:00 3.5 New_York Los_Angeles 500 60
+
+remove flight_id
+remove 1
+
+flights date time
+flights 2023-05-22 10:00:00
+
+book flight_id number_of_tickets
+book 1 2
+
+cancel booking_id
+cancel 1
+
+myorder
+myorder
+
+tickets flight_id
+tickets 1
+```
+
 
 ## Database schema
 ```sqlite

@@ -1,5 +1,6 @@
 import sqlite3
 import hashlib
+from tabulate import tabulate
 
 def hash_input(input_text):
 
@@ -38,6 +39,8 @@ def logout():
     person = {
         "is_logged_in": False, "id": "", "admin": False
     }
+
+    return {"status": "good", "msg": "loggedout"}
 
 
 # login signup
@@ -122,7 +125,11 @@ def admin_login(conn, cursor, username, password):
 
 # add remove flight flights
 @with_cursor
-def add_flight(conn, cursor, flight_name, departure_date, departure_time, duration, origin, destination, price, seats_available):
+def add(conn, cursor, flight_name, departure_date, departure_time, duration, origin, destination, price, seats_available):
+
+    duration = float(duration)
+    price = float(price)
+    seats_available = int(seats_available)
 
     if not person["admin"]:
         return {"status": "bad", "msg": "admin account needed"}
@@ -142,7 +149,7 @@ def add_flight(conn, cursor, flight_name, departure_date, departure_time, durati
 
 
 @with_cursor
-def remove_flight(conn, cursor, flight_id):
+def remove(conn, cursor, flight_id):
 
     if not person["admin"]:
         return {"status": "bad", "msg": "admin account needed"}
@@ -156,7 +163,9 @@ def remove_flight(conn, cursor, flight_id):
     
 
 @with_cursor
-def bookflight(conn, cursor, flight_id, number_of_tickets):
+def book(conn, cursor, flight_id, number_of_tickets):
+
+    number_of_tickets = int(number_of_tickets)
 
     if not person["is_logged_in"]:
         return {"status": "bad", "msg": "login first"}
@@ -193,7 +202,7 @@ def bookflight(conn, cursor, flight_id, number_of_tickets):
     
 
 @with_cursor
-def cancel_booking(conn, cursor, booking_id):
+def cancel(conn, cursor, booking_id):
 
     if not person["is_logged_in"]:
         return {"status": "bad", "msg": "login first"}
@@ -227,7 +236,7 @@ def cancel_booking(conn, cursor, booking_id):
 
 # my ticket
 @with_cursor
-def my_ticket(conn, cursor):
+def myorder(conn, cursor):
 
     if not person["is_logged_in"]:
         return {"status": "bad", "msg": "login first"}
@@ -238,6 +247,74 @@ def my_ticket(conn, cursor):
     customer_id = person["id"]
 
     cursor.execute('SELECT * FROM bookings WHERE customer_id = ?', (customer_id,))
-    bookings = cursor.fetchall()
+    column_names = [desc[0] for desc in cursor.description]
 
-    return bookings
+    values = cursor.fetchall()
+
+    print(tabulate(values, headers=column_names))
+
+
+@with_cursor
+def show(conn, cursor, table_name):
+
+    if not person["is_logged_in"]:
+        return {"status": "bad", "msg": "login first"}
+
+    cursor.execute(f"SELECT * FROM {table_name}")
+
+    column_names = [desc[0] for desc in cursor.description]
+
+    values = cursor.fetchall()
+
+    print(tabulate(values, headers=column_names))
+
+
+@with_cursor
+def tickets(conn, cursor, flight_id):
+
+    if not person["admin"]:
+        return {"status": "bad", "msg": "admin only allowed"}
+
+    cursor.execute("SELECT * FROM bookings WHERE flight_id = ?", (flight_id, ))
+
+    column_names = [desc[0] for desc in cursor.description]
+
+    values = cursor.fetchall()
+
+    print(tabulate(values, headers=column_names))
+
+
+@with_cursor
+def flights(conn, cursor, date, time):
+
+    if not person["is_logged_in"]:
+        return {"status": "bad", "msg": "login first"}
+
+    cursor.execute("SELECT * FROM flights WHERE departure_date >= ? AND departure_time >= ?", (date, time, ))
+
+    column_names = [desc[0] for desc in cursor.description]
+
+    values = cursor.fetchall()
+
+    print(tabulate(values, headers=column_names))
+
+
+while True:
+
+    line = input('>>> ').split(' ')
+
+    function_name = line[0]
+    parameters = line[1:]
+
+    for i in range(len(parameters)):
+        parameters[i] = '"'+parameters[i]+'"'
+
+    try:
+
+        result = eval(function_name + '(' + ','.join(parameters) + ')')
+
+        print(result)
+
+    except Exception as e:
+        
+        print(e)
