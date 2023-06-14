@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="content-section">
+  <form method="POST" action="">
+    {{ form.hidden_tag() }}
+      <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Add Flights</legend>
+        <div class="form-group">
+          {{ render_form_element(form.name) }}
+        </div>
+        <!-- date time duration -->
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              {{ render_form_element(form.departure_date) }}
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              {{ render_form_element(form.departure_time) }}
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              {{ render_form_element(form.duration) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              {{ render_form_element(form.origin) }}
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              {{ render_form_element(form.destination) }}
+            </div>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              {{ render_form_element(form.economy_seat) }}
+            </div>
+            <div class="form-group">
+              {{ render_form_element(form.business_seat) }}
+            </div>
+            <div class="form-group">
+              {{ render_form_element(form.firstclass_seat) }}
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              {{ render_form_element(form.economy_price) }}
+            </div>
+            <div class="form-group">
+              {{ render_form_element(form.business_price) }}
+            </div>
+            <div class="form-group">
+              {{ render_form_element(form.firstclass_price) }}
+            </div>
+          </div>
+        </div>
+
+      </fieldset>
+      <div class="form-group">
+          {{ form.submit(class="btn btn-primary") }}
+      </div>
+  </form>
+</div>
+
+{% endblock content %}

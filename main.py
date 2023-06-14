@@ -300,24 +300,24 @@ def flights(conn, cursor, date, time):
     print(tabulate(values, headers=column_names))
 
 
-while True:
+# while True:
 
-    line = input('>>> ').split(' ')
+#     line = input('>>> ').split(' ')
 
-    function_name = line[0]
-    parameters = line[1:]
+#     function_name = line[0]
+#     parameters = line[1:]
 
-    for i in range(len(parameters)):
-        parameters[i] = '"'+parameters[i]+'"'
+#     for i in range(len(parameters)):
+#         parameters[i] = '"'+parameters[i]+'"'
 
-    try:
+#     try:
 
-        result = eval(function_name + '(' + ','.join(parameters) + ')')
+#         result = eval(function_name + '(' + ','.join(parameters) + ')')
 
-        print(result)
+#         print(result)
 
-    except Exception as e:
+#     except Exception as e:
         
-        print(e)
+#         print(e)
 
-    print()
+#     print()

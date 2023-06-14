@@ -1,0 +1,16 @@
+/* --bs-primary
+--bs-info */
+
+
+body {
+    margin-top: 5rem;
+}
+
+
+.bg-steel {
+    background-color: var(--bs-primary);
+}
+
+.form-group {
+    padding: 10px 0 10px 0;
+}
