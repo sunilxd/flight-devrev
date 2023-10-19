@@ -2,4 +2,43 @@
 {% block content %}
 
 
-{% endblock %}
+<table>
+  <thead>
+    <tr>
+      <th>Flight Name</th>
+      {% if current_user.email == 'admin' %}
+      <th>Traveler</th>
+      {% endif %}
+      <th>Date</th>
+      <th>From</th>
+      <th>To</th>
+      <th>Number</th>
+      <th>Class</th>
+      <th>Price</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for ticket in tickets %}
+    <tr>
+      <td>{{ ticket.seat.flight.name }}</td>
+      {% if current_user.email == 'admin' %}
+      <td>{{ ticket.owner.email }}</td>
+      {% endif %}
+      <td>{{ ticket.seat.flight.departure_date }}</td>
+      <td>{{ ticket.seat.flight.origin }}</td>
+      <td>{{ ticket.seat.flight.destination }}</td>
+      <td>{{ ticket.seat.number }}</td>
+      <td>{{ ticket.seat.name }}</td>
+      <td>{{ ticket.seat.price }}</td>
+      <td>
+        <form action="{{ url_for('cancel_ticket', ticket_id=ticket.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this ticket?');">
+          <input class="btn btn-danger" type="submit" value="Cancel">
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock content %}

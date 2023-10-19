@@ -5,7 +5,7 @@
   <form method="POST" action="">
     {{ form.hidden_tag() }}
       <fieldset class="form-group">
-        <legend class="border-bottom mb-4">Add Flights</legend>
+        <legend class="border-bottom mb-4">Update Flights</legend>
         <div class="form-group">
           {{ render_form_element(form.name) }}
         </div>
@@ -40,48 +40,6 @@
             </div>
           </div>
         </div>
-
-
-        <div class="row">
-          <div class="col">
-            <div class="form-group col">
-              {{ render_form_element(form.economy_seat) }}
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group col">
-              {{ render_form_element(form.economy_price) }}
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col">
-            <div class="form-group col">
-              {{ render_form_element(form.business_seat) }}
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group col">
-              {{ render_form_element(form.business_price) }}
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col">
-            <div class="form-group col">
-              {{ render_form_element(form.firstclass_seat) }}
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group col">
-              {{ render_form_element(form.firstclass_price) }}
-            </div>
-          </div>
-        </div>
-
-
 
       </fieldset>
       <div class="form-group">

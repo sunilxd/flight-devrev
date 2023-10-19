@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% set price = {} %}
+
+<div class="content-section">
+  <h1>Flight #{{ flight.id }}</h1>
+  <form method="POST" action="">
+
+    <div class="m-3"></div>
+
+    <div class="row">
+
+      <div class="wrapper col-md-8">
+        {% for seat in flight.seats %}
+          {% set x=price.__setitem__(seat.name, seat.price) %}
+          {% if seat.number%6 == 4 %}
+            <label>
+              <span class="checkbox dummy" ></span>
+            </label>
+          {% endif %}
+          {% if seat.booked %}
+            <label>
+              <input type="checkbox" name="{{ seat.id }}"/>
+              <span class="checkbox booked" ></span>
+            </label>
+          {% else %}
+            <label>
+              {% if seat.name == 'First Class' %}
+                {% set fun_name = 'firstfn' %}
+              {% else %}
+                {% set fun_name = seat.name.lower()+'fn' %}
+              {% endif %}
+              <input type="checkbox" name="{{ seat.id }}"/>
+              <span class="checkbox {{ seat.name }}" >{{ seat.name }}</span>
+            </label>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="col-md-4 flight-info">
+        <h2>{{ flight.name }}</h2>
+        <div class="border-top pt-5"></div>
+        <table>
+          <tr>
+            <th>Origin:</th>
+            <td>{{ flight.origin }}</td>
+          </tr>
+          <tr>
+            <th>Destination:</th>
+            <td>{{ flight.destination }}</td>
+          </tr>
+          <tr>
+            <th>Departure Date:</th>
+            <td>{{ flight.departure_date.strftime('%b %d, %Y') }}</td>
+          </tr>
+          <tr>
+            <th>Departure Time:</th>
+            <td>{{ flight.departure_time.strftime('%-I:%M %p') }}</td>
+          </tr>
+          <tr>
+            <th>Duration :</th>
+            <td>{{ flight.duration//60 }}hr {{ flight.duration%60 }}m</td>
+          </tr>
+        </table>
+        <h3 class="pt-5">Price</h3>
+        <table>
+          <tr>
+            <th>Economy:</th>
+            <td id="eprice">{{ price['Economy'] }}</td>
+            <td id="economy">0</td>
+          </tr>
+          <tr>
+            <th>Business:</th>
+            <td id="bprice">{{ price['Business'] }}</td>
+            <td id="business">0</td>
+          </tr>
+          <tr>
+            <th>First-class:</th>
+            <td id="fprice">{{ price['First Class'] }}</td>
+            <td id="first-class">0</td>
+          </tr>
+        </table>
+        
+        <center>
+          <div class="total pt-5"><h2>Amount: ₹ <div class="counter">1000</div></h2></div>
+          <input type="submit" class="btn btn-primary btn-lg m-2" value="Book">
+        </center>
+    </div>
+    
+  </form>
+</div>
+
+<script>
+  let ecounter = 0;
+  let bcounter = 0;
+  let fcounter = 0;
+
+  let eprice = document.getElementById("eprice").value;
+  let bprice = document.getElementById("bprice").value;
+  let fprice = document.getElementById("fprice").value;
+
+  const counterElement = document.getElementById("counter");
+  const economy = document.getElementById("economy");
+  const business = document.getElementById("business");
+  const firstclass = document.getElementById("first-class");
+
+  
+  function economyfn(seat) {
+    
+    if (seat.classList.contains("checked")) {
+      ecounter++;
+    } else {
+      ecounter--;
+    }
+
+    console.log(ecounter);
+    
+    counterElement.textContent = ecounter*eprice+bcounter*bprice+fcounter*fprice;
+    economy.textContent = ecounter;
+  }
+
+  function businessfn(seat) {
+    
+    if (seat.classList.contains("checked")) {
+      bcounter++;
+    } else {
+      bcounter--;
+    }
+    
+    counterElement.textContent = ecounter*eprice+bcounter*bprice+fcounter*fprice;
+    business.textContent = bcounter;
+  }
+
+  function firstfn(seat) {
+    
+    if (seat.classList.contains("checked")) {
+      fcounter++;
+    } else {
+      fcounter--;
+    }
+    
+    counterElement.textContent = ecounter*eprice+bcounter*bprice+fcounter*fprice;
+    firstclass.textContent = fcounter;
+  }
+</script>
+
+{% endblock %}

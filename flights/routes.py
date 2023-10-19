@@ -1,12 +1,16 @@
 from flights import app, db, bcrypt
-from flask import render_template, request, session, redirect, url_for, flash
-from flights.forms import LoginForm, RegistrationForm, AdminLoginForm, AddFlightForm
+from flask import render_template, request, session, redirect, url_for, flash, abort
+from flights.forms import LoginForm, RegistrationForm, AdminLoginForm, AddFlightForm, UpdateFlightForm, SearchFlightForm
 from flights.models import User, Flight, Seat, Booking
 from flask_login import login_user, current_user, logout_user, login_required
 
 @app.route('/')
 def home():
     return render_template('home.html')
+
+# @app.route('/d')
+# def dummy():
+#     return render_template('dummy.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -79,6 +83,15 @@ def logout():
     return redirect(url_for('home'))
 
 
+@app.route("/flight", methods=['GET', 'POST'])
+@login_required
+def flight():
+    
+    flights = Flight.query.all()
+
+    return render_template('flight.html', flights=flights)
+
+
 @app.route("/flight/add", methods=['GET', 'POST'])
 @login_required
 def add_flight():
@@ -86,7 +99,6 @@ def add_flight():
         return redirect(url_for('home'))
 
     form = AddFlightForm()
-    print(form)
 
     if form.validate_on_submit():
         Flight.add_flight(form)
@@ -96,13 +108,129 @@ def add_flight():
     
     return render_template('add_flight.html', form=form)
 
+
+@app.route("/flight/<int:flight_id>", methods=['GET', 'POST'])
+@login_required
+def book_seats(flight_id):
+
+    flight = Flight.query.get_or_404(flight_id)
+
+    if request.method == 'POST':
+
+        seats = map(int, request.form.keys())
+        seats = list(map(Seat.query.get_or_404, seats))
+
+        for seat in seats:
+            if seat.booked:
+                flash('Sorry those tickets are booked my someone.', 'danger')
+                return redirect(url_for('book_seats', flight_id=flight_id))
+
+        for seat in seats:
+            seat.book_seat(current_user.id)
+        
+        flash('Tickets booked.', 'success')
+        return redirect(url_for('ticket'))
+
+    return render_template('seats.html', flight=flight)
+
+@app.route("/flight/<int:flight_id>/update", methods=['GET', 'POST'])
+@login_required
+def update_flight(flight_id):
+    if current_user.email != 'admin':
+        return redirect(url_for('home'))
+
+    flight = Flight.query.get_or_404(flight_id)
+    form = UpdateFlightForm()
+
+    if form.validate_on_submit():
+        flight.name = form.name.data
+        flight.departure_date = form.departure_date.data
+        flight.departure_time = form.departure_time.data
+        flight.duration = form.duration.data
+        flight.origin = form.origin.data
+        flight.destination = form.destination.data
+        db.session.commit()
+        flash('Flight Updated', 'success')
+
+        return redirect(url_for('flight'))
+    
+    elif request.method == 'GET':
+        form.name.data = flight.name
+        form.departure_date.data = flight.departure_date
+        form.departure_time.data = flight.departure_time
+        form.duration.data = flight.duration
+        form.origin.data = flight.origin
+        form.destination.data = flight.destination
+
+    
+    return render_template('update_flight.html', form=form)
+
+
+@app.route("/flight/<int:flight_id>/cancel", methods=['POST'])
+@login_required
+def cancel_flight(flight_id):
+    if current_user.email != 'admin':
+        flash('Unautorized', 'warning')
+        abort(403)
+
+    ### send alerts
+    
+    cur_flight = Flight.query.get_or_404(flight_id)
+    db.session.delete(cur_flight)
+    db.session.commit()
+
+    flash('Flight Canceled', 'success')
+    
+    return redirect(url_for('flight'))
+
+
 @app.route("/search", methods=['GET', 'POST'])
 @login_required
 def search():
-    return render_template('search.html')
+    form = SearchFlightForm()
+
+    if form.validate_on_submit():
+        if form.validate_on_submit():
+            flights = Flight.query.filter(Flight.avilable_seat != 0)
+            
+            if form.origin.data != 'None':
+                flights = flights.filter(Flight.origin == form.origin.data)
+
+            if form.destination.data != 'None':
+                flights = flights.filter(Flight.destination == form.destination.data)
+
+            if form.date.data:
+                flights = flights.filter(Flight.departure_date >= form.date.data)
+
+            flights = flights.all()
+    else:
+        flights = Flight.query.filter(Flight.avilable_seat != 0)
+    
+    flights = [flight.more_info() for flight in flights]
+    return render_template('search.html', form=form, flights=flights)
 
 
 @app.route("/ticket", methods=['GET', 'POST'])
 @login_required
 def ticket():
-    return render_template('ticket.html')
+    if current_user.email == 'admin':
+        tickets = Booking.query.all()
+    else:
+        tickets = Booking.query.filter(Booking.user_id==current_user.id).all()
+
+    return render_template('ticket.html', tickets=tickets)
+
+
+@app.route("/cancel/<int:ticket_id>/cancel", methods=['POST'])
+@login_required
+def cancel_ticket(ticket_id):
+    
+    tk = Booking.query.get_or_404(ticket_id)
+
+    if current_user.email != 'admin' and current_user.id != tk.owner.id:
+        abort(403)
+
+    tk.cancel()
+
+    flash('Ticket Canceled.', 'success')
+    return redirect(url_for('ticket'))

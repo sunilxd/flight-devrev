@@ -1,18 +1,33 @@
 <!-- macros -->
 {% macro render_form_element(element) %}
-    <div class="form-group">
-        {{ element.label(class="form-control-label") }}
-        {% if element.errors %}
-            {{ element(class="form-control form-control-lg is-invalid") }}
-            <div class="invalid-feedback">
-                {% for error in element.errors %}
-                    <span>{{ error }}</span>
-                {% endfor %}
-            </div>
-        {% else %}
-            {{ element(class="form-control form-control-lg") }}
-        {% endif %}
-    </div>
+    <!-- <div class="form-group"> -->
+      {{ element.label(class="form-control-label") }}
+      {% if element.errors %}
+          {{ element(class="form-control form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+              {% for error in element.errors %}
+                  <span>{{ error }}</span>
+              {% endfor %}
+          </div>
+      {% else %}
+          {{ element(class="form-control form-control-lg") }}
+      {% endif %}
+    <!-- </div> -->
+{% endmacro %}
+
+{% macro render_element(element) %}
+    <!-- <div class="form-group"> -->
+      {% if element.errors %}
+          {{ element(class="form-control form-control-lg is-invalid") }}
+          <div class="invalid-feedback">
+              {% for error in element.errors %}
+                  <span>{{ error }}</span>
+              {% endfor %}
+          </div>
+      {% else %}
+          {{ element(class="form-control form-control-lg") }}
+      {% endif %}
+    <!-- </div> -->
 {% endmacro %}
 
 <!-- macros-end -->
@@ -38,9 +53,15 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav mr-auto">
-              <a class="nav-item nav-link" href="/">Home</a>
+              {% if current_user.is_authenticated and current_user.email=='admin' %}
+              <a class="nav-item nav-link" href="/flight">Flight</a>
+              <a class="nav-item nav-link" href="/flight/add">Add</a>
+              <a class="nav-item nav-link" href="/ticket">Tickets</a>
               <a class="nav-item nav-link" href="/search">Search</a>
-              <a class="nav-item nav-link" href="/ticket">My Tickets</a>
+              {% else %}
+                <a class="nav-item nav-link" href="/search">Search</a>
+                <a class="nav-item nav-link" href="/ticket">My Tickets</a>
+              {% endif %}
             </div>
             <!-- Navbar Right Side -->
             <div class="navbar-nav">

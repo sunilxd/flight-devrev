@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Departure Date</th>
+      <th>Departure Time</th>
+      <th>Duration</th>
+      <th>Origin</th>
+      <th>Destination</th>
+      <th>Minimum Price</th>
+      <th>Seats Free</th>
+      <th>View</th>
+      {% if current_user.email == 'admin' %}
+      <th>Actions</th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for flight in flights %}
+    <tr>
+      <td>{{ flight.name }}</td>
+      <td>{{ flight.departure_date }}</td>
+      <td>{{ flight.departure_time }}</td>
+      <td>{{ flight.duration }}</td>
+      <td>{{ flight.origin }}</td>
+      <td>{{ flight.destination }}</td>
+      <td>{{ flight.min_price }}</td>
+      <td>{{ flight.avilable_seat }}</td>
+      <td><a href="/flight/{{ flight.id }}">click</a></td>
+      {% if current_user.email == 'admin' %}
+      <td>
+        <form action="{{ url_for('cancel_flight', flight_id=flight.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this flight?');">
+          <input class="btn btn-danger" type="submit" value="Cancel">
+        </form>
+      </td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock content %}

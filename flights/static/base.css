@@ -1,16 +1,194 @@
 /* --bs-primary
 --bs-info */
 
-
-body {
-    margin-top: 5rem;
+:root {
+  /* Bootstrap Colors */
+  --bs-primary: 0, 123, 255;
+  --bs-secondary: 108, 117, 125;
+  --bs-success: 40, 167, 69;
+  --bs-danger: 220, 53, 69;
+  --bs-warning: 255, 193, 7;
+  --bs-info: 23, 162, 184;
+  --bs-light: 248, 249, 250;
+  --bs-dark: 52, 58, 64;
+  --mid-tone: 37, 150, 190;
 }
 
+body {
+  margin-top: 5rem;
+}
 
 .bg-steel {
-    background-color: var(--bs-primary);
+  background-color: rgba(var(--bs-primary));
 }
 
 .form-group {
-    padding: 10px 0 10px 0;
+  padding: 10px 0 10px 0;
+}
+
+table {
+  width: 100%;
+}
+
+
+.flight-search {
+  margin: auto;
+  width: 800px;
+  display: flex;
+  direction: column;
+  justify-content: space-evenly;
+}
+.flight-search .form-group {
+  /* width: 300px;
+  height: 30px; */
+  margin: auto;
+
+}
+
+.flight-card {
+  border-radius: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3rem;
+}
+.flight-card__airline {
+  border-radius: 100%;
+  overflow: hidden;
+  flex: 0 1 5rem;
+  border: 0.2rem solid #fff;
+}
+.flight-card__airline + .flight-card__airline {
+  position: relative;
+  top: -1.5rem;
+}
+.flight-card__departure {
+  margin-left: 2rem;
+}
+.flight-card__arrival {
+  margin-right: 3rem;
+  text-align: right;
+}
+.flight-card__route {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  justify-content: center;
+  align-items: center;
+  padding: 0 4rem;
+}
+.flight-card__type {
+  margin-top: 1rem;
+}
+.flight-card__action {
+  text-align: center;
+}
+.flight-card__time {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  /* font-size: 2rem; */
+}
+.flight-card__city {
+  margin-bottom: 0.4rem;
+  /* font-size: 1.8rem; */
+}
+.flight-card__price {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+.flight-card__cta {
+  min-width: 16rem;
+}
+
+.route-line {
+  position: relative;
+  margin: 1rem 0 0;
+  width: 100%;
+  height: 1px;
+  border: 0.1rem dashed rgba(var(--bs-secondary));
+}
+.route-line__stop {
+  border-radius: 100%;
+  box-sizing: content-box;
+  width: 0.4rem;
+  height: 0.4rem;
+  position: absolute;
+  top: 50%;
+  background-color: white;
+  transform: translate3d(-50%, -50%, 0);
+}
+.route-line__stop-name {  
+  margin-top: 1.5rem;
+  font-size: 1.4rem;
+  transform: translateX(-0.7rem);
+}
+.route-line__start {
+  left: 0;
+  border: 0.6rem solid rgba(var(--bs-secondary));
+  background-color: #fff;
+}
+.route-line__end {
+  right: 0;
+  border: 0.6rem solid rgba(var(--bs-secondary));
+  transform: translate3d(50%, -50%, 0);
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 20px;
+  grid-auto-rows: minmax(100px, auto);
+}
+
+.wrapper span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+}
+
+
+.wrapper input[type="checkbox"] {
+  appearance: none;
+  position: relative;
+}
+
+.wrapper .checkbox {
+  width: 5rem;
+  height: 5rem;
+  /* position: absolute; */
+  border-radius: 5px;
+  transition: 100ms ease-in;
+  cursor: pointer;
+}
+
+.wrapper input:checked + .checkbox {
+  opacity: 1;
+  background: rgba(var(--bs-primary));
+  border: 0.2rem solid rgba(var(--bs-primary));
+}
+
+.wrapper input:hover + .checkbox {
+  color: black;
+}
+
+.wrapper .dummy {
+  background: transparent;
+  border: transparent;
+}
+
+.wrapper .First {
+  background: rgba(var(--bs-primary), .5);
+}
+
+.wrapper .Business {
+  background: rgba(var(--mid-tone), .5);
+}
+
+.wrapper .Economy {
+  background-color: rgba(var(--bs-info), .5);
+}
+
+.wrapper .booked {
+  background: rgba(var(--bs-danger), .9);
 }

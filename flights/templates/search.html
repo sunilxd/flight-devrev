@@ -1,5 +1,66 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<div class="content-section">
+  <form method="POST" action="">
+    {{ form.hidden_tag() }}
+        <div class="flight-search">
+          <div class="form-group">
+            {{ render_element(form.origin) }}
+          </div>
+          <div class="form-group">
+            {{ render_element(form.destination) }}
+          </div>
+          <div class="form-group">
+            {{ render_element(form.date) }}
+          </div>
+          <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+          </div>
+        </div>
+  </form>
+
+
+  <section class="flights-list">
+
+    {% for flight in flights %}
+
+    <article class="flight-card flights-list__item">
+      <!-- /.flight-card__airlines -->
+      <div class="flight-card__departure">
+        <time class="flight-card__time">{{ flight.dep_time }}</time>
+        <h2 class="flight-card__city">{{ flight.dep }}</h2>
+        <time class="flight-card__day">{{ flight.dep_date }}</time>
+      </div>
+      <!-- /.flight-card__departure -->
+      <div class="flight-card__route">
+        <p class="flight-card__duration">{{ flight.name }}</p>
+        <div class="flight-card__route-line route-line" aria-hidden="true">
+          <div class="route-line__stop route-line__start" aria-hidden="true"></div>
+          <!-- /.route-line__start -->
+          <div class="route-line__stop route-line__end" aria-hidden="true"></div>
+          <!-- /.route-line__start -->
+        </div>
+        <p class="flight-card__type">{{ flight.dur }}</p>
+      </div>
+      <div class="flight-card__arrival">
+        <time class="flight-card__time">{{ flight.ari_time }}</time>
+        <h2 class="flight-card__city">{{ flight.ari }}</h2>
+        <time class="flight-card__day">{{ flight.ari_date }}</time>
+      </div>
+      <!-- /.flight-card__arrival -->
+      <div class="flight-card__action">
+        <p class="flight-card__price styled-price">₹ {{ flight.price }}<sub>INR</sub></p>
+        <a class="flight-card__cta btn btn-primary" href="{{ url_for('book_seats', flight_id=flight.id) }}">Select</a>
+      </div>
+      <!-- /.flight-card__action -->
+    </article>
+
+
+    {% endfor %}
+
+  </section>
+
+</div>
 
 {% endblock %}
